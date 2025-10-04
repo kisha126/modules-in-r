@@ -1,0 +1,14 @@
+# 2 Loading External Packages
+
+At first, I have some doubts the capabilities of **{box}** package, like R already has `library()` to load packages you installed in R. But when I tried this package, I learned something that R misses. One of **{box}**'s most convenient features is its approach to dictate R packages' namespace. Unlike the traditional way to load R packages with `library()`, **{box}** is more explicit and more granular to import R packages, and it is more consistent to work with path directories.
+
+## Some restrictions
+
+While the **{box}** package provides different approach to organize and import R code, there are some restrictions to be aware of. Specifically, **{box}** does *not* restricts the following:
+
+-   Attaching meta-packages such as **{tidyverse}** or **{tidymodels}**. 
+-   The use of `library()` / `require()` when constructing a module. 
+
+## Base Packages
+
+From my understanding, the author separates **{base}** package to be imported. Which means, when you construct a module, you don't have to load **{base}** packages, e.g. `box::use(base[mean, sum])`. The rest of *base* packages, like **{stats}** and **{utils}**, are required to be called when constructing a *module*, unless it is just an executable script. 
