@@ -1,0 +1,73 @@
+# Working with data
+
+When working with modules, proper data handling is crucial. Let's explore how to effectively import and manage different types of data using box. It could be an atomic vector, a list, a matrix, a data frame, or an n-dimensional array...
+
+In this guide, especially for data frames later, I'll be using the [sales](https://www.kaggle.com/datasets/kyanyoga/sample-sales-data) revenue dataset from Kaggle, and saved it as `sales.rds` to load it via `readRDS`.
+
+## Creating a Data Module
+
+This is how it's done:
+
+-   If you view the `Modules`, I created a module named `not_func`, where the non-functions are stored.
+
+-   So, under the `Modules`, create a script name `not_func.r`, and paste this code:
+
+    ``` r
+    box::use(
+      tibble[as_tibble]
+    )
+
+    #' @export
+    pi = pi
+
+    #' @export
+    iris = as_tibble(datasets::iris)
+
+    #' @export
+    sales = readRDS(box::file('data/sales.rda'))
+    ```
+
+    Note: No need to put `@export` as the code were being exported into namespace of the modules anyways. This is useful if you preferred to specifically export some codes into the namespace of the module. This is the reason why when you load an external package with `box::use`, only what's inside the namespace of the package will be exported.
+
+-   Save that script and then load the module:
+
+    ```{r}
+    box::use(
+      Modules/not_func
+    )
+    ```
+
+-   You can now access the data like this:
+
+    ```{r}
+    not_func$pi
+
+    not_func$iris
+
+    head(not_func$sales, 5)
+    ```
+
+-   Don't forget that you can do it like this:
+
+    ``` r
+    box::use(
+      Modules/not_func[pi, iris, sales]
+    )
+    ```
+
+    And you can do it like this:
+
+    ``` r
+    pi
+
+    iris
+
+    head(sales, 5)
+    ```
+
+    Just don't forget to maintain your global namespace in order to avoid any conflicts.
+
+
+And that's how it is done. I hope you followed the steps so that you can proceed to the next part.
+
+

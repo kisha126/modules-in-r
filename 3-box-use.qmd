@@ -1,0 +1,73 @@
+# Creating and Reusing Modules
+
+From the previous chapter, you learned how to import external R packages using `box::use` and why it's crucial in managing the package namespace and to avoid conflicts in the global namespace. I'll be glad if you learned something there, or leave a comment there if you have more questions. 
+
+Alright, for this chapter will dive deeper into the creation, organization, and reuse of modules using `box`, one of its core strengths. By structuring your code into reusable modules, you can make your R projects more manageable, scalable, and maintainable.
+
+One of the core strengths of `box` is its ability to help you create reusable modules. This chapter will show you how to create, organize, and use modules effectively in your R projects.
+
+## Module Basics
+
+In `box`, a module is simply an R script or a folder that contains an R script that encapsulates related functions, variables, and objects, forming a cohesive unit of functionality. Think of a module as a container of reusable code, similar to how Python packages work. This design encourages a modular programming approach, where you organize your code into logically separated units, making it easy to maintain and reuse across different projects.
+
+### Creating a Module
+
+To demonstrate how to create and use modules, let’s work with an example folder named `Modules`. Each script or subfolder within this directory will serve as a separate module or submodule. You can visit [`Modules`](https://github.com/kisha126/Modules-code.git) to view the source.
+
+Here's the structure of the `Modules` folder I created for you:
+
+``` bash
+Modules/
+├── __init__.r
+├── convert.r
+├── data
+│   └── sales.rds
+├── hello_world.r
+├── not_func.r
+├── statistics
+│   ├── __init__.r
+│   ├── cor.r
+│   ├── cor_nse.r
+│   └── moving_average.r
+```
+
+Explanation:
+
+-   `__init__.r`: This file acts as the initialization file for the `Modules` directory. It can be used to load or expose specific functions or objects from the submodules within this folder.
+
+-   `convert.r`: This script contains functions for converting data formats or values. For instance, it could include functions to convert temperatures from Celsius to Fahrenheit and vice versa.
+
+-   `data/sales.rds`: A data file used by the module. The module can include any external data files it needs to function, but they should be stored in appropriate directories, such as data/, to keep things organized. However, in my case, I already had `sales.rds` imported into `data`. 
+
+-   `hello_world.r`: A simple script for demonstration purposes that might export a function printing "Hello, World!" to the console.
+
+-   `not_func.r`: This script contains the non-functions. Could be an atomic vector, a list, a matrix, a data frame, or an n-dimensional array.
+
+-   `statistics/`: A submodule dedicated to statistical functions. Submodules can be used to logically group related functionalities within a larger module.
+
+    -   **`__init__.r`**: Similar to the main `__init__.r` file, this one initializes the `statistics` submodule and exposes specific functions under `statistics` module.
+
+    -   **`cor.r`**: A script containing a simple function for calculating correlation coefficients.
+
+    -   **`cor_nse.r`**: Another script that extends the `cor.r` for calculating the correlations, including the nonparametric ones, but this uses non-standard evaluation (NSE), which is more useful for fast and interactive data analysis.
+
+    -   **`moving_average.r`**: A script implementing moving average calculations, which could be useful in time series analysis.
+
+## Starter
+
+Now that you’ve seen the structure of the `Modules` folder, so in order to follow, create a folder where the structure is the same as above and let’s create a simple module as a starting point. Under the `Modules` folder, create a new script named `hello_world.r` and copy the following code:
+
+``` r
+#' @export
+hello = function (name) {
+    message('Hello, ', name, '!')
+}
+
+#' @export
+bye = function (name) {
+    message('Goodbye ', name, '!')
+}
+```
+
+If you follow, so far so good.
+

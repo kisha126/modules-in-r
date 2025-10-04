@@ -1,0 +1,263 @@
+# Loading External Packages
+
+First, I doubt the capabilities of `box` package, like R already has `library()` to call the packages you installed in R. But when I tried this package, I learned something that R misses. One of `box`'s most powerful features is its approach to managing external package dependencies. Unlike traditional R package loading with `library()`, `box` offers a more explicit and controlled way to import external packages.
+
+## Traditional vs Box Approach
+
+Let's first compare the traditional R approach with `box`:
+
+| Aspect            | Traditional R                  | Box Approach                       |
+|-------------------|----------------------------|--------------------------|
+| Loading Method    | `library(dplyr)`               | `box::use(dplyr)`                  |
+| Namespace Impact  | Attaches to global namespace   | Module-scoped imports              |
+| Conflict Handling | May cause naming conflicts     | Explicit imports prevent conflicts |
+| Code Clarity      | Dependencies implicit          | Dependencies explicitly declared   |
+| Performance       | Loads entire package namespace | Loads only what you need           |
+
+## Importing External Packages
+
+The table not enough for you? I gotta explain. The `box` package provides a flexible and explicit way to import external packages and their functions. Let's explore the different importing methods:
+
+### i. Basic Import Syntax
+
+The `box::use()` function uses `...` as a placeholder for multiple package imports. This allows you to import multiple packages and their functions in a single call.
+
+1.  Import specific functions
+
+``` r
+box::use(
+  dplyr[filter, select, mutate],
+  ggplot2[ggplot, geom_point],
+  stats[lm]
+)
+
+# Usage:
+data |> filter(col > 0)     # Use filter directly
+data |> select(col1, col2)  # Use select directly
+```
+
+In this case:
+
+-   Only the specified functions are imported
+-   Functions are available directly by their names
+-   Functions are scoped to your current module
+-   Other functions from these packages remain unavailable
+
+2.  Import entire package
+
+``` r
+# 
+box::use(
+  dplyr
+)  
+
+# Usage:
+data |> dplyr$filter(col > 0)    
+data |> dplyr$select(col1, col2)
+```
+
+Key points:
+
+-   The entire package namespace becomes available
+-   All functions must be accessed using the package name as a prefix
+-   This prevents namespace pollution while maintaining access to all functions
+-   Useful when you need many functions from a package
+
+### ii. Import with Renaming
+
+Function renaming helps prevent namespace conflicts, which commonly occur when different packages have functions with the same name.
+
+For example, the `dplyr`'s `filter` function. As you attach the `dplyr` namespace, it will mask the existing functions from the global namespace, namely the `stats`' `filter` function. You can load the `filter` function from the `dplyr` namespace by
+
+``` r
+# Import and rename functions to avoid conflicts
+box::use(
+    dplyr[filter_rows = filter],  # dplyr's filter becomes filter_rows
+    stats[filter_ts = filter]     # stats' filter becomes filter_ts
+)
+
+# Usage:
+data |> filter_rows(col > 0)      # Use dplyr's filter with new name
+time_series |> filter_ts()        # Use stats' filter with new name
+```
+
+Let's see a real-world example of why renaming is useful:
+
+-   Without renaming (this would cause conflicts)
+
+    ``` r
+    box::use(
+        dplyr[filter],
+        stats[filter]  # This would override the previous filter
+    )
+    ```
+
+-   With renaming (clear and explicit)
+
+    ``` r
+    box::use(
+        dplyr[filter_row = filter],
+        stats[filter_signal = filter] 
+    )
+    ```
+
+``` r
+# Filtering the rows given `cyl` = 6
+mtcars |> 
+    filter_data(cyl == 6)
+
+# Calculating the moving average of AirPassengers data with number of orders or windows = 3
+
+AirPassengers |> 
+    filter_signal(rep(1 / 3, 3), sides = 2)
+```
+
+::: {.callout-tip}
+
+### My insights
+
+You can't do this in R's `library()`, but I get that this is already a standard when you use R. Even I still use `library()`, especially when I use `dplyr` and `tidyr` because most of their namespace is what I need to work with data. So, it's up to you if you want to continue using this.
+
+::: 
+
+## Best Practices for Package Imports
+
+But, of course, R packages have strengths, but don't forget their flaws. I will enumerate the dos in `box` package:
+
+### 1. Be Specific with Imports
+
+a.  ❌ Avoid importing everything
+
+``` r
+box::use(
+  dplyr[...]
+)
+```
+
+Or it will create a mess in the global namespace.
+
+b.  ✅ Import only what you need
+
+``` r
+box::use(
+  dplyr[select, filter, mutate]
+)
+```
+
+### 2. Group Related Imports
+
+-   ✅ Group by functionality: Use comments to dictate the groups
+
+``` r
+box::use(
+  # Data manipulation
+  dplyr[select, filter, mutate],
+  tidyr[pivot_longer, pivot_wider],
+  
+  # Statistical functions
+  stats[lm, t.test],
+  
+  # Visualization
+  ggplot2[ggplot, geom_point, theme_minimal]
+)
+```
+
+### 3. Handle Naming Conflicts
+
+``` r
+# When multiple packages have functions with the same name
+box::use(
+  dplyr[dplyr_filter = filter],
+  stats[stats_filter = filter]
+)
+```
+
+::: {.callout-warning}
+### Otherwise
+
+If you don't do the following practices, you'll just create another flaws. Keep up the work and do the best practices.
+
+:::
+
+## Working with Common R Packages
+
+Although, this seems not a good solution, I still want to show this to you to see the other uses in `box`. I'll have no further explanations for the example because the functionalities in the packages I imported there were discussed in Hadley Wickham's "R for data science".
+
+### Data Manipulation Example
+
+``` r
+# analysis.R
+box::use(
+  dplyr[select, filter, group_by, summarize],
+  tidyr[pivot_wider],
+  readr[read_csv]
+)
+
+analyze_sales <- function(file_path) {
+  read_csv(file_path) |>
+    select(date, product, sales) |>
+    group_by(product) |>
+    summarize(
+      total_sales = sum(sales),
+      avg_sales = mean(sales)
+    ) |>
+    pivot_wider(
+      names_from = product,
+      values_from = c(total_sales, avg_sales)
+    )
+}
+```
+
+### Visualization Example
+
+``` r
+# visualization.R
+box::use(
+  ggplot2[ggplot, geom_point, geom_smooth, theme_minimal, aes],
+  dplyr[filter, group_by, summarize]
+)
+
+plot_sales_trend = function (data) {
+  ggplot(data, aes(x = date, y = sales)) +
+    geom_point(alpha = 0.5) +
+    geom_smooth(method = "loess") +
+    theme_minimal()
+}
+```
+
+## Troubleshooting Package Imports
+
+I will show you solutions if you have similar errors like the following.
+
+Common issues and solutions:
+
+1.  **Package Not Found**
+
+    ``` r
+    # ❌ Error: package not installed
+    box::use(missingpkg[func, ...])
+
+    # ✅ First install the package
+    install.packages("missingpkg")
+    ```
+
+2.  **Function Not Found**
+
+    ``` r
+    # ❌ Error: object not exported from package namespace
+    box::use(dplyr[nonexistent_function])
+
+    # ✅ Check package documentation for correct function name
+    box::use(dplyr[select, filter])
+    ```
+
+## Summary
+
+So, you see, using `box` for dealing with external packages and package management in R offers you these several advantages:
+
+-   Explicit dependency declaration
+-   Better namespace control
+-   Reduced conflicts
+-   More efficient loading
+
+In the next chapter, we'll explore how to create and reuse your own modules effectively.

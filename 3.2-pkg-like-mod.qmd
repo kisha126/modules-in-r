@@ -1,0 +1,266 @@
+# Package-like Modules
+
+The previous part teaches you on how to import data from module, and in this part, you'll learn on how to create a module that mimics the package system in R and package system in other languages such as Python. One of the strengths of `box` is that you don't need to create an R package just to store the R codes and make it accessible to other end-users. Because of this package, you can mimic the way on how Python packages are created. It's modular, maintainable, and accessible.
+
+## Example1: Creating a module and incorporating the previous examples
+
+Recall the `hello_world.r` and `not_func.r` we created, keep it and this time, create another module name `convert.r`. 
+
+Copy this code:
+
+```{r}
+celsius_to_fahrenheit = function (celsius) {
+    fahrenheit = (celsius * 9/5) + 32
+    return(fahrenheit)
+}
+
+fahrenheit_to_celsius = function (fahrenheit) {
+    celsius = (fahrenheit - 32) * 5/9
+    return(celsius)
+}
+
+```
+
+And access them with:
+
+```{r}
+box::use(
+    ./Modules/convert
+)
+
+glue::glue(
+    "{212} degrees Fahrenheit is equivalent to {convert$fahrenheit_to_celsius(212)} degrees Celsius"
+)
+
+```
+
+::: {.callout-note}
+Did you notice that I didn't apply `@export` Roxygen comment? Recall that you can still export the codes exist in that module into its namespace. This means that all of the functions are exported into `convert` namespace.
+:::
+
+You can apply aliases, just like before:
+
+```{r}
+box::use(
+    ./Modules[hw = hello_world]
+)
+
+box::use(
+    ./Modules[cv = convert]
+)
+
+box::use(
+    ./Modules[nf = not_func]
+)
+```
+
+## Example2: Creating a Statistical Module 
+
+Under the `Modules`, let's create a subdirectory named `statistics` that contains the statistical methods. Here is the structure:
+
+```bash
+statistics/
+├── __init__.r
+├── cor.r
+├── cor_npar.r
+└── moving_average.r
+```
+
+For
+
+i.  `cor.r`:
+
+```r
+#' @export
+custom_cor <- function(x, y) {
+    if(length(x) != length(y)) {
+        stop("x and y must have the same length.")
+    }
+    
+    x_centered <- x - mean(x)
+    y_centered <- y - mean(y)
+    
+    dot_product <- sum(x_centered * y_centered)
+    
+    norm_x <- sqrt(sum(x_centered^2))
+    norm_y <- sqrt(sum(y_centered^2))
+    
+    r <- dot_product / (norm_x * norm_y)
+    
+    return(r)
+}
+
+```
+
+ii. `cor_nse.r`:
+
+```r
+box::use(rlang[..., enquos, eval_tidy, sym], glue[...], dplyr[select], stats[cor])
+
+#' @export
+corr = function(..., data = NULL, method = c("pearson", "kendall", "spearman"), use = "everything") {
+  dots = enquos(...) 
+  method = match.arg(method)
+  
+  if (length(dots) == 0) {
+    if (is.null(.data)) {
+      stop("`.data` must be provided when both `x` and `y` are missing.")
+    }
+    print(glue('The correlation matrix of the {deparse(substitute(.data))} is: '))
+    return(cor(as.matrix(data), method = method, use = use))
+  }
+  
+  if (is.null(.data)) {
+    values = lapply(dots, eval_tidy)
+    
+    if (all(vapply(values, is.numeric, logical(1)))) {
+      if (length(values) == 2) {
+        x = values[[1]]
+        y = values[[2]]
+        return(cor(x, y, method = method, use = use))
+      } else {
+        return(cor(do.call(cbind, values), method = method, use = use))
+      }
+    } else {
+      stop("All arguments must be numeric.")
+    }
+  }
+  
+  if (!is.null(.data)) {
+    if (length(dots) == 2) {
+      x = eval_tidy(dots[[1]], data = data)
+      y = eval_tidy(dots[[2]], data = data)
+      return(cor(x, y, method = method, use = use))
+    } 
+    
+    dat = select(data, !!!dots)
+    return(cor(as.matrix(dat), method = method, use = use))
+  }
+}
+
+#' @export
+cor_pipe = function (.data, ..., alternative = "two.sided", method = c("pearson", "kendall", "spearman"), CI = FALSE, alpha = 0.05, approximate = FALSE) {
+    method = match.arg(method)
+    
+    # Ensure .data is provided
+    if (is.null(.data)) {
+        stop("`.data` must be provided, it cannot be NULL in this function.")
+    }
+    
+    dots = eval(substitute(alist(...)))
+    
+    if (length(dots) == 0) {
+        # If no specific columns are provided, compute correlation for all columns in .data
+        return(cor(as.matrix(.data), method = method))
+    }
+    
+    # Convert expressions (column names) to character strings
+    col_names = sapply(dots, as.character)
+    
+    # Select specified columns from .data
+    dat = select(.data, all_of(col_names))
+    
+    # Compute the correlation matrix
+    return(cor(as.matrix(dat), method = method))
+}
+```
+
+iii. `moving_average.r`
+
+```r
+#' @export
+moving_average_r = function(x, win = 3) {
+    nn = length(x)
+    ll = nn - win + 1
+    res = numeric(ll)
+    
+    for (i in 1:ll) {
+        res[i] = mean(x[i:(i + win - 1)])
+    }
+    res
+}
+```
+
+Access all of the modules within `statistics` by:
+
+```{r}
+box::use(
+    ./Modules/statistics
+)
+```
+
+Example:
+
+```{r}
+with(cars, statistics$cor$custom_cor(speed, dist))
+
+cor_pipe = statistics$cor_nse$cor_pipe
+
+mtcars |> 
+  cor_pipe(mpg, hp, disp, qsec)
+
+mas = statistics$moving_average$moving_average_r(AirPassengers, win = 3)
+plot(
+    seq_along(AirPassengers),
+    AirPassengers, 
+    type = "l",
+    col = "blue", 
+    lwd = 2, 
+    xlab = "Time", 
+    ylab = "Passengers", 
+    main = "AirPassengers with Moving Averages"
+)
+lines(
+    mas, 
+    col = "red"
+)
+
+```
+
+
+To access the whole statistics submodule via:
+
+```r
+box::use(
+    ./Modules/statistics
+)
+```
+
+You need to apply initialization first by creating `__init__.r` file under `statistics`:
+
+```r
+#' @export
+box::use(
+    ./cor_nse,
+    ./cor,
+    ./moving_average
+)
+```
+
+I'll explain about nested modules in the next part.
+
+Don't forget that you can apply aliases:
+
+```{r}
+box::use(
+    st = ./Modules/statistics
+)
+```
+
+
+or this:
+
+```{r}
+box::use(
+    ./Modules[st = statistics]
+)
+```
+
+With example:
+
+```{r}
+with(cars, st$cor$custom_cor(speed, dist))
+```
+
+
+

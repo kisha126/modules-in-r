@@ -1,0 +1,144 @@
+# Nested Modules
+
+Nested modules allow you to organize your code into hierarchical structures, similar to how packages in Python can contain subpackages. In box, this is achieved using directories and `__init__.r` files.
+
+## Understanding initialization
+
+The `__init__.r` file serves several important purposes:
+
+1.  It marks a directory as a module
+2.  It controls which objects are exported from the module
+3.  It can contain module-level code and documentation
+4.  It can aggregate functionality from submodules
+
+### Basic `__init__.r` Example
+
+Let's incorporate the modules we've created so far. I already created `__init__.r` files under the `Modules` and its "subpackage" `statistic`, so let's look at a basic `__init__.r` file for the `Modules` directory:
+
+```r
+#' @export
+box::use(
+    ./convert,
+    ./hello_world,
+    ./not_func,
+    ./statistics
+)
+```
+
+While for `statistics`:
+
+```r
+#' @export
+box::use(
+    ./cor_nse,
+    ./cor,
+    ./moving_average,
+    ./cor_npar
+)
+```
+
+As you can see, we've gathered the files we've been created from the previous parts. The `__init__.r` file under the `Modules` contains:
+
+-  The entire namespaces from `hello_world.r`, `convert.r`, and `not_func.r`
+-  Imports the entire `statistics` submodule
+-  Creates and exports a new function greet that combines functionality
+
+
+If you're Python user, then this will be too familiar to you.
+
+To import the whole `Modules` module:
+
+```{r}
+box::use(
+    ./Modules
+)
+```
+
+But don't do this:
+
+```r
+box::use(
+    Modules
+)
+```
+
+Because without `./` that signifies the root path directory implies the package you wanted to import, not a folder/script.
+
+## Example Usage
+
+```{r}
+temp = Modules$convert$fahrenheit_to_celsius(212)
+glue::glue(
+    "{212} degrees Fahrenheit is equivalent to {temp} degrees Celsius"
+)
+
+```
+
+### From `statistics` module
+
+```{r}
+corr = Modules$statistics$cor$custom_cor
+
+r_coef = with(cars, corr(speed, dist))
+
+glue::glue(
+    "Correlation between speed and distance in `cars` dataset: {r_coef}"
+)
+
+```
+
+You can also rename the module you wanted to import:
+
+```r
+box::use(
+    md = ./Modules
+)
+```
+
+## Explicit namespace exportation
+
+By default, `box` encapsulates namespaces, ensuring that each module’s functions and objects remain distinct. However, if you prefer not to encapsulate namespaces, you can use the `[...]` syntax to export all functions from a script.
+
+For example, to export all functions from scripts in `Modules`, modify its `__init__.r`:
+
+```r
+#' @export
+box::use(
+    ./convert[...],
+    ./hello_world[...],
+    ./not_func[...],
+    ./statistics
+)
+```
+
+### Avoid Namespace Pollution
+
+::: {.callout-warning}
+Why there's no `[...]` in `./statistics`? After all, `statistics` is a subfolder as a submodule, not a script, so be cautious when dealing with submodules. That's why, if you include `[...]` for `statistics` in `Modules/__init__.r`, it will export everything from `statistics`, potentially polluting the `Modules` namespace. 
+:::
+
+Instead, apply `[...]` within `statistics/__init__.r` itself:
+
+```r
+#' @export
+box::use(
+    ./cor_nse[...],
+    ./cor[...],
+    ./moving_average[...],
+    ./cor_npar[...]
+)
+```
+
+This approach keeps the namespaces clean and manageable.
+
+## Remember
+
+Don't forget the following:
+
+i.  initialization - Apply `__init__.r` into the namespace of your module.
+ii. Apply `./` in `box::use` - This is just a module, not an external package.
+
+
+
+
+

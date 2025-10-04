@@ -1,0 +1,37 @@
+project:
+  type: website
+
+website:
+  title: "Box: putting modular programming in R"
+  sidebar:
+    style: "docked"
+    search: true
+    contents:
+      - section: "Chapter 1: Introduction"
+        contents:
+          - 1-intro.qmd
+          - 1.1-start.qmd
+      - section: "Chapter 2: Loading external packages"
+        contents:
+          - 2-loading_pkg.qmd
+      - section: "Chapter 3: Creating Modules"
+        contents:
+          - 3-box-use.qmd
+          - 3.1-reading_data.qmd
+          - 3.2-pkg-like-mod.qmd
+          - 3.3-nested_mod.qmd
+      - section: "Chapter 4: Summary and Conclusion"
+        contents: 
+          - 4-conclusion.qmd
+  navbar:
+    left:
+      - href: index.qmd
+        text: Home
+
+format:
+  html:
+    theme:
+      light: [default, custom-light.scss]
+      dark: [darkly, custom-dark.scss]
+    css: styles.css
+    toc: true
