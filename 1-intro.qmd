@@ -2,6 +2,8 @@
 
 Maybe, my knowledge is limited but some R programmers have long sought elegant ways to organize their code into reusable R codes, maintainable modules, and granular import system. Unfortunately, R lacks this system but [box](https://github.com/klmr/box) R package is your saving grace, as it offers a fresh approach to module system in your respective projects.
 
+---
+
 ## The Challenge of Code Organization in R
 
 Let's look at the common challenges:

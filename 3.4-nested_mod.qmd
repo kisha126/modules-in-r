@@ -1,6 +1,8 @@
-# Nested Modules
+# 3.4 Accessing modules in any depths
 
-Nested modules allow you to organize your code into hierarchical structures, similar to how packages in Python can contain subpackages. In box, this is achieved using directories and `__init__.r` files.
+One of the good parts about **{box}** package is it allows to access deep nested scripts folders in any depth as modules. Nested modules allow you to organize your code into hierarchical structures, similar to how packages in Python can contain *submodules*. In **{box}**, this is achieved using scripts and folders with `__init__.r` files in any depth.
+
+---
 
 ## Understanding initialization
 
@@ -9,11 +11,13 @@ The `__init__.r` file serves several important purposes:
 1.  It marks a directory as a module
 2.  It controls which objects are exported from the module
 3.  It can contain module-level code and documentation
-4.  It can aggregate functionality from submodules
+4.  It can aggregate functionality from *submodules*
+
+---
 
 ### Basic `__init__.r` Example
 
-Let's incorporate the modules we've created so far. I already created `__init__.r` files under the `Modules` and its "subpackage" `statistic`, so let's look at a basic `__init__.r` file for the `Modules` directory:
+Let's take back what we've started. I already created `__init__.r` files under **{modules}** and **{statistics}** subfolder, so let's look at a basic `__init__.r` file for **{modules}** directory:
 
 ```r
 #' @export
@@ -37,7 +41,7 @@ box::use(
 )
 ```
 
-As you can see, we've gathered the files we've been created from the previous parts. The `__init__.r` file under the `Modules` contains:
+As you can see, we've gathered the files we've been created from the previous parts. The `__init__.r` file under **{modules}** contains:
 
 -  The entire namespaces from `hello_world.r`, `convert.r`, and `not_func.r`
 -  Imports the entire `statistics` submodule
@@ -114,7 +118,7 @@ box::use(
 ### Avoid Namespace Pollution
 
 ::: {.callout-warning}
-Why there's no `[...]` in `./statistics`? After all, `statistics` is a subfolder as a submodule, not a script, so be cautious when dealing with submodules. That's why, if you include `[...]` for `statistics` in `Modules/__init__.r`, it will export everything from `statistics`, potentially polluting the `Modules` namespace. 
+Why there's no `[...]` in `./statistics`? After all, `statistics` is a subfolder as a submodule, not a script, so be cautious when dealing with submodules. That's why, if you include `[...]` for `statistics` in `Modules/__init__.r`, it will export everything from `statistics`, potentially polluting **{modules}** namespace. 
 :::
 
 Instead, apply `[...]` within `statistics/__init__.r` itself:

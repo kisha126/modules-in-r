@@ -2,7 +2,7 @@ project:
   type: website
 
 website:
-  title: "Box: putting modular programming in R"
+  title: "Box: Placing module system into R"
   sidebar:
     style: "docked"
     search: true
@@ -35,3 +35,9 @@ format:
       dark: [darkly, custom-dark.scss]
     css: styles.css
     toc: true
+
+execute: 
+  echo: true
+  warning: false  
+  message: false  
+  # freeze: auto     # freeze code output automatically

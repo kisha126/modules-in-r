@@ -12,6 +12,8 @@ or you can install the development version from R-universe:
 install.packages('box', repos = 'https://klmr.r-universe.dev')
 ```
 
+---
+
 ## 1.1.1 Why Box
 
 I often recommend **{box}** package because it brings and simplifies modular programming in R. As described in its official documentation, it provides two key benefits:
@@ -25,6 +27,8 @@ With **{box}**, R users (or useRs) can take advantage of a module system approac
 ## 1.1.2 Understanding **{box}** package functionality
 
 Before starting, you need to understand the field of functions offered by this package first. 
+
+---
 
 ### Writing modules
 
@@ -52,6 +56,8 @@ Historically, `box::use()` is initially an alternative approach to import R pack
 
 In contrast, **{box}** leverages R's non-standard evaluation (NSE): writing an expression as if they exist (only in different context). With **{box}**, you can refer R packages like list objects, then the brackets utilizes the "subset" functionality in R that extracts the exported namespaces: not through numbers and string, but through a *literal name*. No mapping and programmatic approach, aside from calling a name of the module with `box::name()`, you have to be explicit by naming the imports. 
 
+---
+
 ## 1.1.3 Understanding Module Paths and Root Directory
 
 Before proceeding to the next step: importation, one crucial aspect of using box is understanding how it locates and imports modules. The package uses a root directory concept to resolve module paths:
@@ -71,6 +77,8 @@ Before proceeding to the next step: importation, one crucial aspect of using box
 *Further explanation in chapter 2 to 3. *
 
 Knowing this helps streamline module management with **{box}**.
+
+---
 
 ## 1.1.4 Basic Usage Example
 
@@ -127,6 +135,8 @@ Once called, you may now reuse it according to the following:
 ``` r
 fit_and_predict(cars, dist ~ speed)
 ```
+
+---
 
 ## 1.1.5 Common Import Patterns
 
@@ -205,6 +215,8 @@ In my opinion, this is the most optimized solution but requires verbose syntax t
 Remember, this will work if `mod` is a script, not a folder, unless it has an initialization file named `__init__.r`.
 :::
 
+---
+
 ## 1.1.6 Troubleshooting Module Imports
 
 Common issues and solutions:
@@ -244,6 +256,7 @@ box::use(modules/my_module)        # Relative to root (if set)
 
 Use relative paths with `./` for clarity, if not a package. Keep module files in a dedicated directory. And then, follow some consistent naming conventions. 
 
+---
 
 ## 1.1.7 Common use of syntax
 
