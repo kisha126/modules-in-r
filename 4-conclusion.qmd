@@ -1,7 +1,0 @@
-# Conclusion
-
-As you can see, modular programming in R becomes seamless and efficient with the `box` package. By utilizing features such as importing packages as modules, reusing modules and nested modules, and organizing with `__init__.r` files, you can create a well-structured, hierarchical project layout. This approach promotes code reusability, simplifies maintenance, and ensures clarity in organization. Whether you're working on a small project or a large, complex system, the box package equips you with the tools needed to implement modular and maintainable R code effectively.
-
-## My Experience
-
-I took few days learn `box` R package because I got one problem: Nested modules. I am just trying to emulate Python's module system and I keep receiving an error. You just have to put `./` before the module, and write `__init__.r` into the namespace. That's right, it's just Python, but in R.

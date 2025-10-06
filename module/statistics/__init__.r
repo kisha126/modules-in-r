@@ -2,5 +2,6 @@
 box::use(
     ./cor,
     ./corrr,
-    ./time_series
+    ./time_series, 
+    ./models
 )

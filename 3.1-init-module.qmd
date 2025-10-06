@@ -23,6 +23,8 @@ module/
 │   └── time_series.r
 ```
 
+*Expect to have additional contents here soon. Otherwise, check out the original source code. *
+
 ### 3.1.1.1 Initialization
 
 The `__init__.r` file is a special file, acts as the initialization file which marks **{module}** folder as a *package*, in which will be executed once you import **{module}** as a *module*. 
@@ -59,7 +61,9 @@ Here are the scripts under the root folder that you can directly import:
 
 ## 3.1.2 Importing **{module}**
 
-Now that you’ve seen the structure of the **{module}** folder, you can reuse my codes, by forking [**{module}**](https://github.com/kisha126/modules-in-r/module), found at the source code of this book, into any specified directory. 
+Now that you’ve seen the structure of the **{module}** folder, you can reuse my codes, by forking [**{module}**](https://github.com/kisha126/modules-in-r/module), found at the source code of this book, into any specified directory. Let's recall a bit about what is on about in [Chapter 2: Importing packages](2.1-loading-pkg.qmd). This time, we import scripts / folders as a module instead. 
+
+### 3.1.2.1 Valid imports
 
 Here are the valid imports: 
 
@@ -120,5 +124,43 @@ Here are the valid imports:
     ![](Images/img-c3.1.2.jpg)
 
 ::: callout-note
-Do not forget to put `./` prefix to load specific modules in your project workspace. The lack of `./` prefix is only valid for R packages. 
+Do not forget to put `./` prefix to load specific modules in your project workspace. The lack of `./` prefix is only valid for R packages. For the deep nested modules, this will be deeply tackled in [Chapter 3.4: Accessing modules in any depths](3.4-nested_mod.qmd). 
 :::
+
+## 3.1.3 Reloading modules
+
+During development, most particularly when you import a particular module, you’ll sometimes modify its source code — for example, tweaking functions or adding new ones. However, **{box}** modules are cached after their first import. This means that changes you make to your module’s code won’t automatically take effect until you explicitly reload it.
+
+### 3.1.3.1 Basic Reloading
+
+To reload a module, **{box}** provides the function `box::reload()`. This clears the cached version and re-imports the module, ensuring that the latest code changes are applied.
+
+If you’ve imported the module, such as:
+
+```
+box::use(
+    md = ./module
+)
+```
+
+and you made some changes within its source code, you can reload it simply by:
+
+``` r
+box::reload(md)
+```
+
+And note: This is not allowed to reload *submodules* under `md` module:
+
+``` r
+box::reload(md$statistics)
+```
+
+### 3.1.3.2 Reload benefits
+
+Reloading is particularly useful when:
+
+-   You’re iteratively developing and testing module code
+-   You’ve edited scripts that are already imported
+-   You want to ensure that any updates to exported objects are reflected in your current R session
+
+My advise for production code, however, you generally don’t need to use `box::reload()` — modules should be stable and imported once.

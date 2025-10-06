@@ -155,7 +155,7 @@ The functions like `%>%` from **{magrittr}** is one of the function with special
 
 ### 2.1.2.5 Wildcard import
 
-The true equivalent of `library(pkg)` is something like `box::use[...]`. Yet again, we use `...`, also called "ellipsis". The use of `...` sets as a "wildcard", and this, while being *granular*, imports all the namespace withing the package (or modules). The Python's equivalent would be `from pkg import *`.  
+The true equivalent of `library(pkg)` is something like `box::use(pkg[...])`. Yet again, we use `...`, also called "ellipsis". The use of `...` sets as a "wildcard", and this, while being *granular*, imports all the namespace withing the package (or modules). The Python's equivalent would be `from pkg import *`.  
 
 For example:
 
@@ -167,11 +167,59 @@ box::use(
 
 ---
 
-## 2.1.3 Best Practices for Package Imports
+## 2.1.3 Imports within the function / function call
+
+When we import packages / scripts / folders as modules or import their namespace, did you know the imports are *enclosed* within the scope?
+
+According to the official documentation:
+
+> the effects of `box::use` are restricted to the current scope: we can load and attach names inside a function, and this will not affect the calling scope (or elsewhere).
+
+Here, let me show you:
+
+```{r}
+#| echo: true
+#| code-fold: true
+#| collapse: true
+#| comment: "#>"
+mtcars |> 
+    dplyr::reframe(
+        {    
+            box::use(
+                stats[linear_reg = lm, pearson_r = cor],
+                purrr[imap_dfc, set_names],
+                tibble[tbl = tibble]
+            ) 
+            
+            model = linear_reg(mpg ~ wt)
+            coefs = coef(model)
+            coef_table = imap_dfc(coefs, \(bi, nm) {
+                result = tbl(bi)
+                set_names(result, nm)
+            })
+            
+            corr = pearson_r(wt, mpg)
+            
+            test = summary(model)
+            tbl(
+                coef_table, 
+                corr = corr, 
+                rsq = test$r.squared,
+                adj_rsq = test$adj.r.squared
+            )
+        },
+        
+        .by = cyl
+    )
+```
+
+I made this code to study the type-I error by examining how true the linear relationship between `wt` and `mpg` variables from `mtcars` data, when performing statistical analysis. Here, I made imports within `dplyr::reframe()` function call without making side-effect the current environment. This is great if you create a function with external dependencies available from R packages, or within your scripts / folders. 
+
+## 2.1.4 Best Practices for Package Imports
 
 But, of course, R packages have strengths, but don't forget their flaws. I will enumerate the *do's* in **{box}** package:
 
-### 2.1.3.1 Be Specific with Imports
+### 2.1.4.1 Be Specific with Imports
 
 #### a. Avoid importing everything
 
@@ -241,7 +289,7 @@ iris |>
 
 :::
 
-### 2.1.3.2 Group Related Imports
+### 2.1.4.2 Group Related Imports
 
 For better clarity, you can explain the imports you are making *within* the function call `box::use()` with comments `#`. This is not unusual, sometimes this is common. Since comments are allowed, you can group the imports by functionality. 
 
@@ -263,7 +311,7 @@ box::use(
 The proper documentation is discussed in Chapter 3.2, which it talks about *Package-like Modules*. 
 :::
 
-### 2.1.3.3 Handle Naming Conflicts
+### 2.1.4.3 Handle Naming Conflicts
 
 As I discussed in Chapter 2.1.2.3, you are allowed to place an alias within the imports, so that the namespace clash will be resolved. 
 
@@ -288,7 +336,7 @@ Trust me, I've been this a long time ago: not following any of those practices. 
 
 ---
 
-## 2.1.4 Troubleshooting Package Imports
+## 2.1.5 Troubleshooting Package Imports
 
 Frankly, I will show you solutions if you have similar errors like the following. The common issues to be found when importing packages happen are: 
 
