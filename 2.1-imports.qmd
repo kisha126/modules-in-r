@@ -1,4 +1,4 @@
-# 2.1 Array of Import Monikers
+# 2.1 Array of Imports with Monikers
 
 ---
 
@@ -18,38 +18,47 @@ Oh, and there's also `require()` function, an evil-ler twin of `library()` funct
 
 ---
 
-## 2.1.2 Importing External Packages
+## 2.1.2 Importing R Packages and scripts / folders
 
 The table not enough for you? This book will further explain. The **{box}** package provides a flexible and explicit way to import external packages and their functions. Let's explore the different importing methods:
 
 ### 2.1.2.1 Basic Imports
 
-This book already shows you the basic importation using `box::use()`. But, the `box::use()` function uses `...`, also called "ellipsis", and it acts as a "placeholder" that allows multiple arguments, similar to Python's `*args` and `**kwargs`, thus allows multiple package imports. Since this allows you to import multiple packages and their functions in a single call, you don't have to bother yourself calling multiple calls, like:
+This book already shows you the basic importation using `box::use()`. But, the `box::use()` function uses `...`, also called "ellipsis", and it acts as a "placeholder" that allows multiple arguments, similar to Python's `*args` and `**kwargs`, thus allows multiple package imports. Since this allows you to import multiple packages and their functions in a single call, separated by comma, you don't have to bother yourself calling multiple calls, like:
 
-``` r
+:::::: panel-tabset
+
+#### Packages
+
+::::: {.columns}
+
+:::: {.column width="50%"}
+
+```r
 box::use(dplyr[filter, select, mutate])
 box::use(ggplot2[ggplot, geom_point])
 box::use(stats[lm])
 
-# Usage
 data |> 
-    filter(col > 0)     # Use filter directly
+    filter(col > 0)     
 data |> 
-    select(col1, col2)  # Use select directly
+    select(col1, col2)  
 ```
+::::
+
+:::: {.column width="50%"}
 
 Instead, do the following:
 
 ::: {.callout-note icon=false title="Import specific functions" appearance="minimal"}
 
-``` r
+```r
 box::use(
     dplyr[filter, select, mutate],
     ggplot2[ggplot, geom_point],
     stats[lm]
 )
 
-# Usage
 data |> 
     filter(col > 0)     
 data |> 
@@ -57,9 +66,57 @@ data |>
 mtcars |> 
     lm(formula = mpg ~ wt)
 ```
+
 :::
 
+::::
+
+:::::
+
+#### Scripts
+
+Except when importing scripts and modules, you are going to provide the name of the path (should be a literal name, not a string), and/or add prefix `./` that indicates the current path. The use of `../` is allowed as well, but this will be discussed in [Chapter 3.4](3.4-nested-modules.qmd). 
+
+The rest is going to be the same as package import syntax: 
+
+::::: {.columns}
+
+:::: {.column width="50%"}
+
+```r
+box::use(./mod1[fn1, fn2])
+box::use(./mod2[fn3, fn4])
+box::use(./mod3[fn5])
+
+fn1(fn2(5)) 
+```
+::::
+
+:::: {.column width="50%"}
+
+Instead, do the following:
+
+::: {.callout-note icon=false title="Import specific functions" appearance="minimal"}
+
+```r
+box::use(
+    ./mod1[fn1, fn2],
+    ./mod2[fn3, fn4],
+    ./mod3[fn5]
+)
+
+fn1(fn2(5)) 
+```
+
+:::
+
+::::
+
+:::::
+
 In this case, the nuance being: Hard coding multiple calls is avoided
+
+::::::
 
 ::: {.callout-tip}
 
@@ -69,21 +126,24 @@ In this case, the nuance being: Hard coding multiple calls is avoided
 -   Functions are available directly by their names
 -   Functions are scoped to your current module
 -   Other functions from these packages remain unavailable
+-   There's difference between the imports of R packages and imports of scripts / folders.
+-   The modules for scripts / folders have structures. More information about it at [Chapter 3: Employment of Modules](3-struct-module.qmd).
 
 :::
 
-### 2.1.2.2 Importing the entire package
+### 2.1.2.2 Importing the entirety
 
-Do not confuse this with `library()`, where it attaches the *entire* namespace to the search path. The **{box}** fortunately resolves this: Instead of loading the package onto the global environment, the namespace that includes the functions and other objects, such as data frame, will be encapsulated as an *environment* (a data structure) with its name. 
+Do not confuse this with `library()`, where it attaches the *entire* namespace to the search path, and throwing all the exports into the search path is often *subjectively* (or *objectively*?) discouraged in best software engineering practices. The **{box}** fortunately resolves this: Instead of loading the package onto the global environment, the namespace of the package and scripts / folders, including the functions and other objects, such as data frames or constants like `pi` from **{base}** R, will be encapsulated as an *environment* (another data structure, similar to lists) with its name, and then the imports are accessed directly with `$` subset operator. 
 
 ``` r
 box::use(
-    dplyr
+    dplyr,
+    ./mod1, 
+    ./mod2
 )  
 
-# Usage:
-dplyr$filter(data, col > 0)    
 dplyr$select(data, col1, col2)
+mod1$fn1(mod2$fn3(5))
 ```
 
 How beautiful this may be? I have several verdicts: 
@@ -98,12 +158,16 @@ The use of aliases also allowed:
 ``` r
 box::use(
     dpr = dplyr, 
-    tdr = tidyr
+    tdr = tidyr, 
+    md1 = ./module1,
+    md2 = ./module2
 )  
 
 # Usage:
 dpr$filter(data, col1 > 0) |> 
     tdr$pivot_longer(cols = col2)
+
+md1$fn1(md2$fn3(5))
 ```
 
 ### 2.1.2.3 Granular Imports with Aliases
@@ -151,7 +215,22 @@ Also inconsistent as it silently fails, and I won't highly recommend this.
 
 ### 2.1.2.4 Import special characters
 
-The functions like `%>%` from **{magrittr}** is one of the function with special characters. 
+The functions like `%>%` from **{magrittr}** is one of the functions with special characters. In R, operators and functions that use special characters (like `+`, `*`, `%>%`, `%in%`, `%*%`, etc.) are called *infix operators*. These operators require special handling when importing with **{box}**. By the way, those are still *functions*. 
+
+To import functions with special characters, you need to wrap them in backticks:
+
+```{r}
+#| echo: true
+box::use(
+    magrittr[`%>%`, `%T>%`], 
+    dplyr[group_by, summarise]
+)
+
+iris %>% 
+    group_by(Species) %>% 
+    summarise(m = mean(Sepal.Length, na.rm = TRUE))
+```
+
 
 ### 2.1.2.5 Wildcard import
 

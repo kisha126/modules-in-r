@@ -1,4 +1,4 @@
-# 3.2 Reading data
+# 3.3 Structuring and constructing modules part 3: Reading and adding data
 
 When constructing modules, sometimes you a built-in data frame, or any object outside from functions. Let's explore how to effectively import / export and manage different types of data using **{box}**. It could be an atomic vector, a list, a matrix, a data frame, an n-dimensional array, and so on. 
 
@@ -6,15 +6,15 @@ In this guide, especially for data frames later, I'll be using the `mpg` dataset
 
 ---
 
-## 3.2.1 Creating a module for the data
+## 3.3.1 Creating a module for the data
 
 The steps are trivial, (almost) every steps are similar to the process in R packages.
 
-### 3.2.1.1 File "extension"
+### 3.3.1.1 File "extension"
 
-There's a script under **{module}** folder named `not_func.r`, where non-functions are contained.
+There's a script under **{./module}** folder named `not_func.r`, where non-functions are contained.
 
-Under **{module}** folder, copy and paste this code:
+Under **{./module}** folder, copy and paste this code:
 
 ``` r
 box::use(
@@ -45,7 +45,7 @@ box::use(
 )
 ```
     
-If you have the initial file, you can import `not_func` within `[]`. For example:
+If you have the initial file, you can import **{./module/not_func.r}** as **{not_func}** module within `[]`. For example:
 
 ``` r
 box::use(
@@ -53,9 +53,9 @@ box::use(
 )
 ```
 
-But remember, it will append another environment in the current environment, specifically under **{module}** environment for **{not_func}**, and then create **{md_dt}** to load the entire **{module}** afterwards.
+But remember, it will append another environment in the current environment, specifically under **{./module}** environment for **{not_func}**, and then create **{md_dt}** to load the entire **{./module}** afterwards.
 
-#### 3.2.1.2 Loading an object
+#### 3.3.1.2 Loading an object
 
 If you did the following:
 
