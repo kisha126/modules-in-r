@@ -115,7 +115,7 @@ Here's the syntax pattern:
 
 Under `linear.r`, `logistic.r`, and `baseline_logit.r` scripts from **{statistics/models}**, there's an import that tries to access the namespace under `matrix_ops.r` and `tables.r` scripts, where both scripts are found 2 steps upper from the current directory of `linear.r`, `logistic.r`, and `baseline_logit.r` scripts:
 
-```{r}
+``` r
 box::use(
     ../../matrix_ops[`*`, `^`],
     ../../tables[draw_table]
