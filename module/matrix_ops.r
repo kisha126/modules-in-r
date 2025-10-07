@@ -1,10 +1,9 @@
-
 #' Matrix Multiplication
 #' 
 #' @export
 `*` = function (e1, e2) UseMethod("*")
 
-`*.default` = function(e1, e2) base::`*`(e1, e2)
+`*.default` = function (e1, e2) base::`*`(e1, e2)
 
 `*.matrix` = function (e1, e2) {
     if (is.matrix(e1) && is.matrix(e2)) {
@@ -15,7 +14,6 @@
             # Try the other way around if dimensions match
             return(base::`%*%`(e2, e1))
         } else {
-            # If neither multiplication works, do element-wise
             return(base::`*`(e1, e2))
         }
     } else {
@@ -38,7 +36,6 @@
 }
 
 `*.data.frame` = function (e1, e2) {
-    # Convert data frames to matrices first
     if (is.data.frame(e1)) {
         e1 <- as.matrix(e1)
     }
@@ -46,8 +43,7 @@
         e2 <- as.matrix(e2)
     }
     
-    # Use matrix method
-    return(`*.matrix`(e1, e2))
+    `*.matrix`(e1, e2)
 }
 
 box::register_S3_method("*", "default")
@@ -64,7 +60,7 @@ box::register_S3_method("*", "data.frame")
 
 `^.matrix` = function (e1, e2) {
     if (e2 == -1) {
-        return(solve(e1))
+        return(solve(e1)) # It becomes the inverse of the matrix
     } else if (e2 == 1) {
         return(e1)
     } else {
@@ -76,14 +72,16 @@ box::register_S3_method("*", "data.frame")
     if (is.matrix(e1)) {
         return(`^.matrix`(e1, e2))
     }
-    return(base::`^`(e1, e2))
+    
+    base::`^`(e1, e2)
 }
 
-`^.data.frame` = function(e1, e2) {
+`^.data.frame` = function (e1, e2) {
     if (is.data.frame(e1)) {
         e1 <- as.matrix(e1)
     }
-    return(`^.matrix`(e1, e2))
+    
+    `^.matrix`(e1, e2)
 }
 
 box::register_S3_method("^", "default")

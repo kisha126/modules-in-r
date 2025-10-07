@@ -1,0 +1,213 @@
+# 4.1 Setting Up Module Tests
+
+The **{box}** package works seamlessly with **{testthat}**, R's most popular testing framework. While you can use other testing frameworks, this guide focuses on testthat because of its widespread adoption and excellent integration with RStudio.
+
+## 4.1.1 Setting Up Module Tests
+
+Let us return to the **{./module}** in Chapter 3.1. For example, you wanna measure the robustness of **{./module/matrix_ops.r}** source code. In that source code, I overload `*` from base R to . 
+
+Take a look of the source code: 
+
+``` r
+#' Matrix Multiplication
+#' 
+#' @export
+`*` = function (e1, e2) UseMethod("*")
+
+`*.default` = function (e1, e2) base::`*`(e1, e2)
+
+`*.matrix` = function (e1, e2) {
+    if (is.matrix(e1) && is.matrix(e2)) {
+        # Check dimensions for matrix multiplication
+        if (ncol(e1) == nrow(e2)) {
+            return(base::`%*%`(e1, e2))
+        } else if (ncol(e2) == nrow(e1)) {
+            # Try the other way around if dimensions match
+            return(base::`%*%`(e2, e1))
+        } else {
+            # If neither multiplication works, do element-wise
+            return(base::`*`(e1, e2))
+        }
+    } else {
+        return(base::`*`(e1, e2))
+    }
+}
+
+# ... The rest are truncated
+
+box::register_S3_method("^", "default")
+box::register_S3_method("^", "matrix")
+box::register_S3_method("^", "array")
+box::register_S3_method("^", "data.frame")
+```
+
+To make this module testable, add this snippet at the very end of `matrix_ops.r`:
+
+```r
+if (is.null(box::name())) {
+    box::use(./`__tests__`)
+}
+```
+
+and it becomes:
+
+``` r
+#' Matrix Multiplication
+#' 
+#' @export
+`*` = function (e1, e2) UseMethod("*")
+
+`*.default` = function (e1, e2) base::`*`(e1, e2)
+
+`*.matrix` = function (e1, e2) {
+    if (is.matrix(e1) && is.matrix(e2)) {
+        # Check dimensions for matrix multiplication
+        if (ncol(e1) == nrow(e2)) {
+            return(base::`%*%`(e1, e2))
+        } else if (ncol(e2) == nrow(e1)) {
+            # Try the other way around if dimensions match
+            return(base::`%*%`(e2, e1))
+        } else {
+            return(base::`*`(e1, e2))
+        }
+    } else {
+        return(base::`*`(e1, e2))
+    }
+}
+
+# ... The rest are truncated
+
+box::register_S3_method("^", "default")
+box::register_S3_method("^", "matrix")
+box::register_S3_method("^", "array")
+box::register_S3_method("^", "data.frame")
+
+if (is.null(box::name())) {
+    box::use(./`__tests__`)
+}
+```
+
+This clever pattern works because `box::name()` returns `NULL` when the file is run directly (not imported as a module). So running `Rscript module/matrix_ops.r` will trigger the tests, but using `box::use(module/matrix_ops)` in other code won't.
+
+### Organizing Your Tests
+
+Create a `__tests__/` subdirectory next to your module file. The double underscores make it clear this is special infrastructure code, not a regular module. Your structure should look like:
+
+```
+module/
+├── matrix_ops.r
+└── __tests__/
+    ├── __init__.r
+    ├── helper-module.r
+    └── test-matrix_ops.r
+```
+
+**The `__init__.r` file** serves as the test runner. It's minimal but essential:
+
+```r
+box::use(testthat[...])
+
+.on_load <- function(ns) {
+  test_dir(box::file(), reporter = 'summary')
+}
+```
+
+The `.on_load` hook ensures tests run automatically when the `__tests__` module loads. Using `box::file()` gives us the current directory path.
+
+**The `helper-module.r` file** loads your module into the test environment:
+
+```r
+box::use(../matrix_ops[...])
+```
+
+The `[...]` syntax attaches all exported functions, making them available in tests without prefixes.
+
+**The `test-matrix_ops.r` file** contains your actual tests:
+
+```r
+test_that("transpose works for rectangular matrices", {
+  mat <- matrix(1:6, nrow = 2, ncol = 3)
+  result <- transpose_matrix(mat)
+  
+  expect_equal(nrow(result), 3)
+  expect_equal(ncol(result), 2)
+})
+
+test_that("matrix multiplication checks dimensions", {
+  mat1 <- matrix(1:4, nrow = 2)
+  mat2 <- matrix(1:4, nrow = 3)
+  
+  expect_error(
+    matrix_multiply(mat1, mat2),
+    "Incompatible matrix dimensions"
+  )
+})
+
+test_that("determinant calculation works", {
+  mat <- matrix(c(1, 2, 3, 4), nrow = 2)
+  expect_equal(calculate_determinant(mat), -2)
+})
+```
+
+### Testing Nested Modules
+
+For deeply nested modules like `statistics/models/linear.r`, the pattern is identical—just adjust the relative paths. Your structure might be:
+
+```
+module/
+└── statistics/
+    └── models/
+        ├── linear.r
+        └── __tests__/
+            ├── __init__.r
+            ├── helper-module.r
+            └── test-linear.r
+```
+
+In `helper-module.r`, use the appropriate relative path:
+
+```r
+box::use(../../linear[...])
+```
+
+### Running Tests Correctly
+
+Here's a critical point: **always run tests in a fresh R session**. The `box::use()` function caches modules after the first load, so repeatedly "sourcing" your test file won't pick up code changes. Instead:
+
+- From the command line: `Rscript module/matrix_ops.r`
+- In RStudio: Use "Tools" → "Jobs" → "Start Local Job..."
+
+This ensures you're testing the current version of your code, not a stale cached version.
+
+### Testing Private Functions
+
+By default, your tests only see exported functions—the public API of your module. This is generally good practice: you want to test behavior, not implementation details.
+
+However, sometimes you need to test internal helper functions. You have two options:
+
+**Option 1: Export functions temporarily for testing.** Add `#' @export` to private functions during development, then remove it when you're confident they work.
+
+**Option 2: Access the private namespace directly.** Every module object has a `namespace` attribute containing private functions:
+
+```r
+# In your test file
+box::use(../matrix_ops)
+
+test_that("internal validation helper works", {
+  private_ns <- attr(matrix_ops, 'namespace')
+  result <- private_ns$validate_dimensions(matrix(1:4, 2, 2))
+  expect_true(result)
+})
+```
+
+Use this approach sparingly—it couples your tests to implementation details that might change.
+
+### Best Practices
+
+- **Test one module per test file.** Keep `test-matrix_ops.r` focused on `matrix_ops.r`.
+- **Use descriptive test names.** Write `test_that("handles empty matrices gracefully", ...)` instead of `test_that("test1", ...)`.
+- **Test edge cases.** Empty inputs, very large inputs, `NA` values—these are where bugs hide.
+- **Keep tests fast.** Slow tests don't get run. If a test takes more than a few seconds, consider whether it belongs in unit tests or integration tests.
+- **Run tests frequently.** Make running tests part of your development workflow, not something you do once at the end.
+
+The combination of **{box}** modules and **{testthat}** gives you a powerful, modern testing setup that rivals what you'd find in other programming languages. It encourages writing testable code from the start, which leads to better software design overall.
