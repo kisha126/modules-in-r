@@ -8,11 +8,10 @@ box::use(
     stats[pnorm, model.frame, model.response]
 )
 
-sigmoid = function(z) {
+sigmoid = function (z) 
     1 / (1 + exp(-z))
-}
 
-binary_response = function(y) {
+binary_response = function (y) {
     y = as.matrix(y)
     
     if (ncol(y) > 1) {
@@ -46,7 +45,7 @@ binary_response = function(y) {
     )
 }
 
-coef_logit = function(y, X, max_iter = 100, tol = 1e-7) {
+coef_logit = function (y, X, max_iter = 100, tol = 1e-7) {
     X = cbind(1, X)
     
     y_prep = binary_response(y)
@@ -99,21 +98,21 @@ standard_error_logit = function(y, X, coefs) {
     se_coef
 }
 
-z_stat = function(est, se) {
+z_stat = function (est, se) {
     z_val = map2_dbl(est, se, \(est, se) est / se)
     z_val
 }
 
-odds_ratio = function(coefs) {
+odds_ratio = function (coefs) {
     exp(coefs)
 }
 
-vif_logit = function(X) {
+vif_logit = function (X) {
     X = as.matrix(X)
     p = ncol(X)
     
     vif_values = map_dbl(
-        1:p, function(i) {
+        1 : p, function(i) {
             X_curr = X[, i, drop = FALSE]
             X_other = cbind(1, X[, -i, drop = FALSE])
             
@@ -175,14 +174,14 @@ vif_logit = function(X) {
 #'     logistic$logistic_reg(c(disp, hp, wt, drat), am, vif = TRUE)
 #'
 #' @export
-logistic_reg = function(obj, ...) 
+logistic_reg = function (obj, ...) 
     UseMethod("logistic_reg")
 
 #' @rdname logistic_reg
 #' @param x For data frame method: either a formula or column selection for 
 #'   predictor variables (supports tidyselect syntax).
 #' @param y For data frame method: column selection for the response variable.
-logistic_reg.data.frame = function(obj, x, y, ...) {
+logistic_reg.data.frame = function (obj, x, y, ...) {
     x_expr = enexpr(x)
   
     if (is_formula(x_expr)) {
@@ -201,7 +200,7 @@ logistic_reg.data.frame = function(obj, x, y, ...) {
 
 #' @rdname logistic_reg
 #' @param data A data frame containing the variables in the formula.
-logistic_reg.formula = function(obj, data, ...) {
+logistic_reg.formula = function (obj, data, ...) {
     dat = model.frame(obj, data = data)
     X = select(dat, -1)
     y = model.response(dat)
@@ -217,7 +216,7 @@ logistic_reg.formula = function(obj, data, ...) {
 #' @param tol Convergence tolerance. Default is 1e-8.
 #' 
 #' @keywords internal
-logistic_reg.default = function(obj, y, vif = FALSE, max_iter = 100, tol = 1e-8, ...) {
+logistic_reg.default = function (obj, y, vif = FALSE, max_iter = 100, tol = 1e-8, ...) {
     n = nrow(obj)
     p = ncol(obj) + 1
     
@@ -266,7 +265,7 @@ logistic_reg.default = function(obj, y, vif = FALSE, max_iter = 100, tol = 1e-8,
     res
 }
 
-print.logistic_reg = function(x, ...) {
+print.logistic_reg = function (x, ...) {
     out = mutate(x$out, across(where(is.numeric), \(x) round(x, digits = 4)))
     
     cat("\n Custom Logistic Regression output: \n\n")
@@ -281,3 +280,7 @@ print.logistic_reg = function(x, ...) {
 }
 
 box::register_S3_method("print", "logistic_reg")
+
+if (is.null(box::name())) {
+    box::use(./`__tests__`)
+}

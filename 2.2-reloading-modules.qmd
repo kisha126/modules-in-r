@@ -1,4 +1,4 @@
-# 2.1 Reloading modules
+# 2.2 Reloading modules
 
 When working with modules during development, you'll frequently modify the source code, and need those changes to reflect in your current R session. Understanding how **{box}** handles module reloading to increase development workflow efficiency.
 
@@ -6,7 +6,7 @@ This section primarily applies to modules created from scripts and folders, not 
 
 ---
 
-## 2.1.1 How **{box}** caches modules
+## 2.2.1 How **{box}** caches modules
 
 By default, **{box}** caches modules after the first import. This improves performance but means changes to your module files won't automatically appear in your current session.
 
@@ -40,7 +40,7 @@ This behavior mirrors how R packages work - once loaded with `library()`, they r
 
 ---
 
-## 2.1.2 Manual reloading with `box::reload()`
+## 2.2.2 Manual reloading with `box::reload()`
 
 After importing **{./utils/helpers}** as **./helpers** module, reload **./helpers** with `box::use()`.
 
@@ -68,7 +68,7 @@ helpers$my_function()
 
 ---
 
-## 2.1.3 Reloading scenarios
+## 2.2.3 Reloading scenarios
 
 I made a practical examples that you can replicate in your current sessions somewhere. First, create **./utils** folder then create an R script named **helpers.r**. Once **{./utils/helpers}** is loaded via `box::use(./utils/helpers)`, **{.helpers}** module is made.
 
@@ -256,7 +256,7 @@ helpers$sum(x, na.rm = TRUE)
 #> Error in helpers$sum : name 'sum' not found in 'helpers'
 ```
 
-## 2.1.4 Some pitfalls
+## 2.2.4 Some pitfalls
 
 The function `box::reload()` ONLY reloads the module, not the functions or objects under the namespace of the module. Trying to reload function will throw an error saying `Error in box::reload(custom_mean) : "reload” expects a module object, got “fun”, which is of type “function” instead`
 
@@ -274,7 +274,7 @@ The best solution is to restart the session, and the environment/s created by `b
 
 ---
 
-## 2.1.5 Compared to restarting R session
+## 2.2.5 Compared to restarting R session
 
 To be frank, an R session is simply just a running instance of the R interpreter — the environment where R executes code, stores objects, and manages the workspace. When you start R (via terminal, RStudio, VS Code, or any other interface), you are launching a fresh R session.
 

@@ -1,32 +1,62 @@
 project:
-  type: website
+  type: book
+  output-dir: _book
 
-website:
+book:
   title: "Box: Placing module system into R"
+  author: "Joshua Marie"
+  # optional: author, date, subtitle, image, etc.
   sidebar:
-    style: "docked"
+    title: "Box: Placing module system into R"
+    style: docked
     search: true
     contents:
       - section: "Chapter 1: Introduction"
         contents:
+          - index.qmd
           - 1-intro.qmd
           - 1.1-start.qmd
       - section: "Chapter 2: Loading external packages"
         contents:
-          - 2-loading_pkg.qmd
+          - 2-box-fundamentals.qmd
+          - 2.1-imports.qmd
+          - 2.2-reloading-modules.qmd
       - section: "Chapter 3: Creating Modules"
         contents:
-          - 3-box-use.qmd
-          - 3.1-reading_data.qmd
-          - 3.2-pkg-like-mod.qmd
-          - 3.3-nested_mod.qmd
-      - section: "Chapter 4: Summary and Conclusion"
-        contents: 
-          - 4-conclusion.qmd
+          - 3-struct-module.qmd
+          - 3.1-struct-module-1.qmd
+          - 3.2-struct-module-2.qmd
+          - 3.3-add-data.qmd
+          - 3.4-nested-modules.qmd
+          # 3.5-compiled-codes.qmd is not present in repo — add it here if/when available
+      - section: "Chapter 4: Testing Modules"
+        contents:
+          - 4-testing-modules.qmd
+          - 4.1-testthat.qmd
+          - 4.2-testthat-2.qmd
+
   navbar:
     left:
       - href: index.qmd
         text: Home
+
+  # explicit chapter order and numbering (index.qmd is required)
+  chapters:
+    - index.qmd
+    - 1-intro.qmd
+    - 1.1-start.qmd
+    - 2-box-fundamentals.qmd
+    - 2.1-imports.qmd
+    - 2.2-reloading-modules.qmd
+    - 3-struct-module.qmd
+    - 3.1-struct-module-1.qmd
+    - 3.2-struct-module-2.qmd
+    - 3.3-add-data.qmd
+    - 3.4-nested-modules.qmd
+    # - 3.5-compiled-codes.qmd   # add when the file exists
+    - 4-testing-modules.qmd
+    - 4.1-testthat.qmd
+    - 4.2-testthat-2.qmd
 
 format:
   html:
@@ -35,9 +65,9 @@ format:
       dark: [darkly, custom-dark.scss]
     css: styles.css
     toc: true
+    number-sections: false
 
-execute: 
-  echo: true
-  warning: false  
-  message: false  
-  # freeze: auto     # freeze code output automatically
+execute:
+  warning: false
+  message: false
+  # freeze: auto

@@ -190,3 +190,7 @@ print.linear_reg = function(x, ...) {
 }
 
 box::register_S3_method("print", "linear_reg")
+
+if (is.null(box::name())) {
+    box::use(./`__tests__`)
+}

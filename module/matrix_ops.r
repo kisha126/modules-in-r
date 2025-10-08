@@ -89,4 +89,6 @@ box::register_S3_method("^", "matrix")
 box::register_S3_method("^", "array")
 box::register_S3_method("^", "data.frame")
 
-
+if (is.null(box::name())) {
+    box::use(./`__tests__`)
+}

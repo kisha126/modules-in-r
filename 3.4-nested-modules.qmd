@@ -220,7 +220,7 @@ While **{box}** allows you to nest modules at any depth, here are some of my sof
 
 -   **Keep it reasonable**: Deeply nested structures can make navigation more complex. Most projects benefit from a relatively flat hierarchy, though the optimal depth depends on your project's size and complexity.
 
--   **Organize by functionality**: Group related functions in a way that makes sense for your workflow. For example, keeping all model-related functions under **{./module/statistics/models}***, organized by algorithm type.
+-   **Organize by functionality**: Group related functions in a way that makes sense for your workflow. For example, keeping all model-related functions under **{./module/statistics/models}**, organized by algorithm type.
 
 -   **Use meaningful names**: Choose folder names that clearly indicate their contents, making it easier to locate specific functionality.
 
