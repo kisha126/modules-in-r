@@ -26,7 +26,7 @@ box::use(./utils/helpers)
 helpers$my_function()  # Still uses old version!
 ```
 
-Here's the problem: second import that uses `box::use()`, uses cached version, and the changes you made in `**{./utils/helpers}**` will NOT be reflected. 
+Here's the problem: second import that uses `box::use()`, uses cached version, and the changes you made in **{./utils/helpers}** will NOT be reflected. 
 
 There are some reasons why caching happens: 
 
