@@ -1,0 +1,35 @@
+/* Style the toggle button */
+.quarto-color-scheme-toggle {
+  width: 24px;
+  height: 24px;
+  padding: 0;
+  background: none;
+  border: none;
+}
+
+/* Hide the default switch */
+.quarto-color-scheme-toggle .bi {
+  display: none !important;
+}
+
+/* Light mode (sun) icon */
+html[data-mode="light"] .quarto-color-scheme-toggle::before,
+.quarto-light .quarto-color-scheme-toggle::before {
+  content: '';
+  display: block;
+  width: 24px;
+  height: 24px;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Ccircle cx='12' cy='12' r='4'%3E%3C/circle%3E%3Cpath d='M12 2v2'%3E%3C/path%3E%3Cpath d='M12 20v2'%3E%3C/path%3E%3Cpath d='m4.93 4.93 1.41 1.41'%3E%3C/path%3E%3Cpath d='m17.66 17.66 1.41 1.41'%3E%3C/path%3E%3Cpath d='M2 12h2'%3E%3C/path%3E%3Cpath d='M20 12h2'%3E%3C/path%3E%3Cpath d='m6.34 17.66-1.41 1.41'%3E%3C/path%3E%3Cpath d='m19.07 4.93-1.41 1.41'%3E%3C/path%3E%3C/svg%3E");
+  background-size: contain;
+}
+
+/* Dark mode (moon) icon */
+html[data-mode="dark"] .quarto-color-scheme-toggle::before,
+.quarto-dark .quarto-color-scheme-toggle::before {
+  content: '';
+  display: block;
+  width: 24px;
+  height: 24px;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24' fill='none' stroke='white' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z'%3E%3C/path%3E%3C/svg%3E");
+  background-size: contain;
+}
