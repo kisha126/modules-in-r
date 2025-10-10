@@ -1,6 +1,8 @@
 project:
   type: book
-  output-dir: _book
+  output-dir: book
+  render:
+    - "*.qmd"
 
 book:
   title: "Box: Placing module system into R"
@@ -58,6 +60,9 @@ book:
     - 4.1-testthat.qmd
     - 4.2-testthat-2.qmd
 
+  repo-url: https://github.com/kisha126/box-r  # replace with your actual repo
+  repo-actions: [edit, issue]  # makes pages editable and links to open issues
+
 format:
   html:
     theme:
@@ -66,6 +71,8 @@ format:
     css: styles.css
     toc: true
     number-sections: false
+    code-copy: true
+    page-navigation: true
 
 execute:
   warning: false
