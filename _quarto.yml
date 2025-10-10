@@ -1,12 +1,14 @@
 project:
   type: book
-  output-dir: book
+  output-dir: docs
   render:
     - "*.qmd"
 
 book:
   title: "Box: Placing module system into R"
-  author: "Joshua Marie"
+  author:
+    - name: "Joshua Marie"
+    - name: "John Riz Bagnol"
   # optional: author, date, subtitle, image, etc.
   sidebar:
     title: "Box: Placing module system into R"
